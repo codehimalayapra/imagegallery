@@ -80,7 +80,9 @@ export const ImageGallery: React.FC = () => {
         next={() => setPage((prev) => prev + 1)}
         hasMore={true}
         loader={
-          <div className="flex justify-center my-30">
+          <div
+            className={`flex justify-center my-30 ${searchTerm && "hidden"}`}
+          >
             <Spinner className="w-12 h-12 text-gray-200 animate-spin dark:text-gray-200 fill-blue-600" />
           </div>
         }

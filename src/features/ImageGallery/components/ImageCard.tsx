@@ -10,7 +10,7 @@ export const ImageCard = ({ image }: { image: ImageListResponse }) => {
       rel="noopener noreferrer"
       className={`rounded-lg bg-black overflow-hidden shadow-lg transition-all duration-300 ${
         image.rowSpan
-      } rounded-xl relative group cursor-zoom-in ${!isLoaded && "hidden"}`}
+      } rounded-xl relative group cursor-zoom-in ${!isLoaded && "invisible"}`}
     >
       <img
         src={image.renderURL}

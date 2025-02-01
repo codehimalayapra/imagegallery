@@ -15,7 +15,7 @@ export const assignRowSpan = (images: ImageListResponse[]) => {
       rowSpan:
         index === 2
           ? "row-span-1"
-          : Math.random() > 0.4
+          : Math.random() > 0.1
           ? "row-span-2"
           : "row-span-1",
     })),
