@@ -1,12 +1,13 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
-import { ImageListResponse } from "../types";
-import { assignRowSpan } from "../utils";
-import { API_URL_BASE, PAGE_SIZE } from "../constant";
-import { ImageCard } from "../components";
-import { ImageGridLoader } from "../../../components/Common/ImageGridLoader";
+import React, { useEffect, useState } from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
 import { CrossIconSVG, SearchIconSVG, Spinner } from "../../../assets/svg";
 import { QueryNotFound } from "../../../components";
+import { ImageGridLoader } from "../../../components/Common/ImageGridLoader";
+import { ImageCard } from "../components";
+import { API_URL_BASE, PAGE_SIZE } from "../constant";
+import { ImageListResponse } from "../types";
+import { assignRowSpan } from "../utils";
 
 export const ImageGallery: React.FC = () => {
   const [images, setImages] = useState<ImageListResponse[]>([]);
@@ -14,32 +15,13 @@ export const ImageGallery: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false); // Separate state for scroll loading
-  const observer = useRef<IntersectionObserver | null>(null);
   //Debounce search
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
-
-  // For infinite scroll implementation
-  const endOfListRef = useCallback(
-    (node: HTMLDivElement) => {
-      if (loadingMore) return;
-      if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-          setPage((prev) => prev + 1);
-        }
-      });
-      if (node) observer.current.observe(node);
-    },
-    [loadingMore]
-  );
 
   useEffect(() => {
     const fetchImages = async () => {
       if (page === 1) {
         setLoading(true);
-      } else {
-        setLoadingMore(true);
       }
 
       try {
@@ -55,7 +37,6 @@ export const ImageGallery: React.FC = () => {
       }
 
       setLoading(false);
-      setLoadingMore(false);
     };
 
     fetchImages();
@@ -92,21 +73,26 @@ export const ImageGallery: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-5 p-4 auto-rows-auto">
-        {loading && <ImageGridLoader size={6} />}
+      {loading && <ImageGridLoader size={6} />}
 
-        {(searchTerm ? filteredImages : images).map((image) => (
-          <ImageCard image={image} key={image.id} />
-        ))}
-      </div>
-      {loadingMore && (
-        <div className="flex justify-center my-30">
-          <Spinner className="w-12 h-12 text-gray-200 animate-spin dark:text-gray-200 fill-blue-600" />
+      <InfiniteScroll
+        dataLength={(searchTerm ? filteredImages : images).length}
+        next={() => setPage((prev) => prev + 1)}
+        hasMore={true}
+        loader={
+          <div className="flex justify-center my-30">
+            <Spinner className="w-12 h-12 text-gray-200 animate-spin dark:text-gray-200 fill-blue-600" />
+          </div>
+        }
+        endMessage={<p>No more data to load.</p>}
+      >
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-5 p-4 auto-rows-auto">
+          {(searchTerm ? filteredImages : images).map((image) => (
+            <ImageCard image={image} key={image.id} />
+          ))}
         </div>
-      )}
-      {!searchTerm && !loading && !loadingMore && (
-        <div ref={endOfListRef} className="h-10"></div>
-      )}
+      </InfiniteScroll>
+
       {searchTerm && !filteredImages.length && <QueryNotFound />}
     </main>
   );
