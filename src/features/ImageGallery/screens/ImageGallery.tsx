@@ -1,46 +1,43 @@
 import { useDebounce } from "@uidotdev/usehooks";
 import React, { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import Masonry from "react-masonry-css";
 import { CrossIconSVG, SearchIconSVG, Spinner } from "../../../assets/svg";
 import { QueryNotFound } from "../../../components";
-import { ImageGridLoader } from "../../../components/Common/ImageGridLoader";
 import { ImageCard } from "../components";
 import { API_URL_BASE, PAGE_SIZE } from "../constant";
 import { ImageListResponse } from "../types";
-import { assignRowSpan } from "../utils";
+
+const breakpointColumnsObj = {
+  default: 3, // 3 columns by default
+  1500: 2, // 2 columns for screens <= 1500px
+};
 
 export const ImageGallery: React.FC = () => {
   const [images, setImages] = useState<ImageListResponse[]>([]);
   const [filteredImages, setFilteredImages] = useState<ImageListResponse[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
   //Debounce search
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
+  const fetchImages = async () => {
+    try {
+      const res = await fetch(
+        `${API_URL_BASE}/list?page=${page}&limit=${PAGE_SIZE}`
+      );
+      const data: ImageListResponse[] = await res.json();
+      // const updatedData = assignRowSpan(data);
+
+      setImages((prev) => prev.concat(data));
+      setPage((prev) => prev + 1);
+    } catch (error) {
+      console.error("Error fetching images:", error);
+    }
+  };
   useEffect(() => {
-    const fetchImages = async () => {
-      if (page === 1) {
-        setLoading(true);
-      }
-
-      try {
-        const res = await fetch(
-          `${API_URL_BASE}/list?page=${page}&limit=${PAGE_SIZE}`
-        );
-        const data: ImageListResponse[] = await res.json();
-        const updatedData = assignRowSpan(data);
-
-        setImages((prev) => [...prev, ...updatedData]);
-      } catch (error) {
-        console.error("Error fetching images:", error);
-      }
-
-      setLoading(false);
-    };
-
     fetchImages();
-  }, [page]);
+  }, []);
 
   // Implemented debounce for lower load on server if the call was made to server
   useEffect(() => {
@@ -73,11 +70,9 @@ export const ImageGallery: React.FC = () => {
         </div>
       </div>
 
-      {loading && <ImageGridLoader size={6} />}
-
       <InfiniteScroll
         dataLength={(searchTerm ? filteredImages : images).length}
-        next={() => setPage((prev) => prev + 1)}
+        next={fetchImages}
         hasMore={true}
         loader={
           <div
@@ -88,11 +83,15 @@ export const ImageGallery: React.FC = () => {
         }
         endMessage={<p>No more data to load.</p>}
       >
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-5 p-4 auto-rows-auto">
+        <Masonry
+          breakpointCols={breakpointColumnsObj}
+          className="flex -ml-[20px]"
+          columnClassName="pl-[20px] bg-clip-padding"
+        >
           {(searchTerm ? filteredImages : images).map((image) => (
             <ImageCard image={image} key={image.id} />
           ))}
-        </div>
+        </Masonry>
       </InfiniteScroll>
 
       {searchTerm && !filteredImages.length && <QueryNotFound />}
