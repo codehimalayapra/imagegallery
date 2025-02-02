@@ -13,7 +13,7 @@ export const ImageCard = ({ image }: { image: ImageListResponse }) => {
       aria-label={`View image by ${image.author}`}
       rel="noopener noreferrer"
       className={`${
-        !isLoaded ? "sr-only" : ""
+        !isLoaded ? "invisible sr-only" : ""
       } rounded-lg bg-black overflow-hidden shadow-lg transition-all duration-300 rounded-xl relative group cursor-zoom-in mb-[10px] md:mb-[20px] focus:outline-none focus:ring-4 focus:ring-blue-500`}
       // for enter key press with 'Tab' selected item
       onKeyDown={(e) => {

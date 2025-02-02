@@ -7,6 +7,7 @@ import { QueryNotFound } from "../../../components";
 import { ImageCard } from "../components";
 import { API_URL_BASE, PAGE_SIZE } from "../constant";
 import { ImageListResponse } from "../types";
+import { GenericError } from "../../../components/Errors/GenericError";
 
 const breakpointColumnsObj = {
   default: 3, // 3 columns by default
@@ -19,6 +20,7 @@ export const ImageGallery: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   // set state as 2 purely for visual reason (better images), in real world should be one
   const [page, setPage] = useState(2);
+  const [error, setError] = useState<string | null>(null); // State to handle errors
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const fetchImages = async () => {
@@ -26,19 +28,23 @@ export const ImageGallery: React.FC = () => {
       const res = await fetch(
         `${API_URL_BASE}/list?page=${page}&limit=${PAGE_SIZE}`
       );
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       const data: ImageListResponse[] = await res.json();
 
       setImages((prev) => [...prev, ...data]);
       setPage((prev) => prev + 1);
+      setError(null); // Reset error state on successful fetch
     } catch (error) {
       console.error("Error fetching images:", error);
+      setError("Failed to fetch images. Please try again later."); // Set error state
     }
   };
 
   useEffect(() => {
     fetchImages();
   }, []);
-
   // Implemented debounce for lower load on server if the call was made to server
   useEffect(() => {
     setFilteredImages(
@@ -78,33 +84,39 @@ export const ImageGallery: React.FC = () => {
         </div>
       </div>
 
-      <InfiniteScroll
-        dataLength={(searchTerm ? filteredImages : images).length}
-        next={fetchImages}
-        hasMore={true}
-        loader={
-          <div
-            className={`flex justify-center my-30 ${searchTerm && "hidden"}`}
-            aria-live="polite"
-          >
-            <Spinner
-              className="w-12 h-12 text-gray-200 animate-spin dark:text-gray-200 fill-blue-600"
-              aria-label="Loading more images"
-            />
-          </div>
-        }
-        endMessage={<p>No more data to load.</p>}
-      >
-        <Masonry
-          breakpointCols={breakpointColumnsObj}
-          className="flex -ml-[10px] md:-ml-[20px]"
-          columnClassName="pl-[10px] md:pl-[20px] bg-clip-padding"
+      {error ? (
+        <div className="text-red-500 text-center my-4" aria-live="assertive">
+          <GenericError errorMessage={error} />
+        </div>
+      ) : (
+        <InfiniteScroll
+          dataLength={(searchTerm ? filteredImages : images).length}
+          next={fetchImages}
+          hasMore={true}
+          loader={
+            <div
+              className={`flex justify-center my-30 ${searchTerm && "hidden"}`}
+              aria-live="polite"
+            >
+              <Spinner
+                className="w-12 h-12 text-gray-200 animate-spin dark:text-gray-200 fill-blue-600"
+                aria-label="Loading more images"
+              />
+            </div>
+          }
+          endMessage={<p>No more data to load.</p>}
         >
-          {(searchTerm ? filteredImages : images).map((image) => (
-            <ImageCard image={image} key={image.id} />
-          ))}
-        </Masonry>
-      </InfiniteScroll>
+          <Masonry
+            breakpointCols={breakpointColumnsObj}
+            className="flex -ml-[10px] md:-ml-[20px]"
+            columnClassName="pl-[10px] md:pl-[20px] bg-clip-padding"
+          >
+            {(searchTerm ? filteredImages : images).map((image) => (
+              <ImageCard image={image} key={image.id} />
+            ))}
+          </Masonry>
+        </InfiniteScroll>
+      )}
 
       {searchTerm && !filteredImages.length && <QueryNotFound />}
     </main>
