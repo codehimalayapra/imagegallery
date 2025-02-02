@@ -4,12 +4,23 @@ import { ImageListResponse } from "../types";
 export const ImageCard = ({ image }: { image: ImageListResponse }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   return (
+    // couldn't use anchor tag as it wasn't compatible with Mansonry package
     <div
       onClick={() => window.open(image.download_url, "_blank")}
+      // For 'Tab' key usuage
+      tabIndex={0}
+      role="link"
+      aria-label={`View image by ${image.author}`}
       rel="noopener noreferrer"
       className={`${
-        !isLoaded && "invisible"
-      } rounded-lg bg-black overflow-hidden shadow-lg transition-all duration-300 rounded-xl relative group cursor-zoom-in mb-[10px] md:mb-[20px]`}
+        !isLoaded ? "sr-only" : ""
+      } rounded-lg bg-black overflow-hidden shadow-lg transition-all duration-300 rounded-xl relative group cursor-zoom-in mb-[10px] md:mb-[20px] focus:outline-none focus:ring-4 focus:ring-blue-500`}
+      // for enter key press with 'Tab' selected item
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          window.open(image.download_url, "_blank");
+        }
+      }}
     >
       <img
         src={image.download_url}

@@ -19,7 +19,6 @@ export const ImageGallery: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   // set state as 2 purely for visual reason (better images), in real world should be one
   const [page, setPage] = useState(2);
-  //Debounce search
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const fetchImages = async () => {
@@ -28,14 +27,14 @@ export const ImageGallery: React.FC = () => {
         `${API_URL_BASE}/list?page=${page}&limit=${PAGE_SIZE}`
       );
       const data: ImageListResponse[] = await res.json();
-      // const updatedData = assignRowSpan(data);
 
-      setImages((prev) => prev.concat(data));
+      setImages((prev) => [...prev, ...data]);
       setPage((prev) => prev + 1);
     } catch (error) {
       console.error("Error fetching images:", error);
     }
   };
+
   useEffect(() => {
     fetchImages();
   }, []);
@@ -47,23 +46,31 @@ export const ImageGallery: React.FC = () => {
         image.author.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
       )
     );
-  }, [debouncedSearchTerm]);
+  }, [debouncedSearchTerm, images]);
 
   return (
     <main className="px-4 xl:px-40">
       <div className="sticky top-0 bg-white z-10 py-4">
         <div className="relative">
-          <SearchIconSVG className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 hover:text-blue-500 transition-colors duration-200" />
+          <SearchIconSVG
+            id="search-icon"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 hover:text-blue-500 transition-colors duration-200"
+            aria-hidden="true"
+          />
           <input
             placeholder="Search by author..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full p-3 pl-10 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            aria-label="Search by author"
+            aria-labelledby="search-icon"
           />
           {searchTerm && (
             <button
               onClick={() => setSearchTerm("")}
+              onKeyDown={(e) => e.key === "Enter" && setSearchTerm("")}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+              aria-label="Clear search input"
             >
               <CrossIconSVG />
             </button>
@@ -78,8 +85,12 @@ export const ImageGallery: React.FC = () => {
         loader={
           <div
             className={`flex justify-center my-30 ${searchTerm && "hidden"}`}
+            aria-live="polite"
           >
-            <Spinner className="w-12 h-12 text-gray-200 animate-spin dark:text-gray-200 fill-blue-600" />
+            <Spinner
+              className="w-12 h-12 text-gray-200 animate-spin dark:text-gray-200 fill-blue-600"
+              aria-label="Loading more images"
+            />
           </div>
         }
         endMessage={<p>No more data to load.</p>}
