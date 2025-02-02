@@ -1,15 +1,21 @@
+import { useState } from "react";
 import { ImageListResponse } from "../types";
 
 export const ImageCard = ({ image }: { image: ImageListResponse }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
   return (
     <div
       onClick={() => window.open(image.download_url, "_blank")}
       rel="noopener noreferrer"
-      className={`rounded-lg bg-black overflow-hidden shadow-lg transition-all duration-300 rounded-xl relative group cursor-zoom-in mb-[20px]`}
+      className={`${
+        !isLoaded && "invisible"
+      } rounded-lg bg-black overflow-hidden shadow-lg transition-all duration-300 rounded-xl relative group cursor-zoom-in mb-[20px]`}
     >
       <img
         src={image.download_url}
         alt={image.author}
+        onLoad={() => setIsLoaded(true)}
+        loading="lazy"
         className="w-full h-full object-cover transform group-hover:opacity-65 transition-all duration-250"
       />
 

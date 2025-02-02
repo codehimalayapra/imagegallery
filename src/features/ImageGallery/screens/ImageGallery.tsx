@@ -17,7 +17,8 @@ export const ImageGallery: React.FC = () => {
   const [images, setImages] = useState<ImageListResponse[]>([]);
   const [filteredImages, setFilteredImages] = useState<ImageListResponse[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [page, setPage] = useState(1);
+  // set state as 2 purely for visual reason (better images), in real world should be one
+  const [page, setPage] = useState(2);
   //Debounce search
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
