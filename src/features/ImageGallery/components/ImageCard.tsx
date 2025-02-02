@@ -9,7 +9,7 @@ export const ImageCard = ({ image }: { image: ImageListResponse }) => {
       rel="noopener noreferrer"
       className={`${
         !isLoaded && "invisible"
-      } rounded-lg bg-black overflow-hidden shadow-lg transition-all duration-300 rounded-xl relative group cursor-zoom-in mb-[20px]`}
+      } rounded-lg bg-black overflow-hidden shadow-lg transition-all duration-300 rounded-xl relative group cursor-zoom-in mb-[10px] md:mb-[20px]`}
     >
       <img
         src={image.download_url}

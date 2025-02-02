@@ -86,8 +86,8 @@ export const ImageGallery: React.FC = () => {
       >
         <Masonry
           breakpointCols={breakpointColumnsObj}
-          className="flex -ml-[20px]"
-          columnClassName="pl-[20px] bg-clip-padding"
+          className="flex -ml-[10px] md:-ml-[20px]"
+          columnClassName="pl-[10px] md:pl-[20px] bg-clip-padding"
         >
           {(searchTerm ? filteredImages : images).map((image) => (
             <ImageCard image={image} key={image.id} />
