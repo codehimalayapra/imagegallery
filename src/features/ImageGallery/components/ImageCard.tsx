@@ -5,6 +5,7 @@ export const ImageCard = ({ image }: { image: ImageListResponse }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   return (
     <>
+      {/* couldn't use anchor tag as it wasn't compatible with Mansonry package */}
       <div
         onClick={() => window.open(image.download_url, "_blank")}
         // For 'Tab' key usuage
@@ -13,7 +14,7 @@ export const ImageCard = ({ image }: { image: ImageListResponse }) => {
         aria-label={`View image by ${image.author}`}
         rel="noopener noreferrer"
         className={`${
-          !isLoaded ? "inset-0 bg-gray-300 dark:bg-gray-600 animate-pulse" : ""
+          !isLoaded ? "inset-0 bg-gray-200 dark:bg-gray-600 animate-pulse" : ""
         } rounded-lg bg-black overflow-hidden shadow-lg transition-all duration-300 rounded-xl relative group cursor-zoom-in mb-[10px] md:mb-[20px] focus:outline-none focus:ring-4 focus:ring-blue-500`}
         // for enter key press with 'Tab' selected item
         onKeyDown={(e) => {
@@ -41,6 +42,5 @@ export const ImageCard = ({ image }: { image: ImageListResponse }) => {
         </div>
       </div>
     </>
-    // couldn't use anchor tag as it wasn't compatible with Mansonry package
   );
 };
