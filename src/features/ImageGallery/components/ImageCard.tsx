@@ -14,8 +14,8 @@ export const ImageCard = ({ image }: { image: ImageListResponse }) => {
         aria-label={`View image by ${image.author}`}
         rel="noopener noreferrer"
         className={`${
-          !isLoaded ? "inset-0 bg-gray-200 dark:bg-gray-600 animate-pulse" : ""
-        } rounded-lg bg-black overflow-hidden shadow-lg transition-all duration-300 rounded-xl relative group cursor-zoom-in mb-[10px] md:mb-[20px] focus:outline-none focus:ring-4 focus:ring-blue-500`}
+          !isLoaded ? "inset-0 bg-gray-200 dark:bg-[#27445D] animate-pulse" : ""
+        } rounded-lg overflow-hidden shadow-xl transition-all duration-300 rounded-xl relative group cursor-zoom-in mb-[10px] md:mb-[20px] focus:outline-none focus:ring-4 focus:ring-blue-500`}
         // for enter key press with 'Tab' selected item
         onKeyDown={(e) => {
           if (e.key === "Enter") {
